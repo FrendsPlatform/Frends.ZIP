@@ -31,42 +31,45 @@ public static class Zip
 
         var output = new UnzipOutput();
 
-        using var zip = ZipFile.Read(input.SourceFile);
-
-        if (!string.IsNullOrWhiteSpace(input.Password)) zip.Password = input.Password;
-
-        foreach (var z in zip)
+        using (var zip = ZipFile.Read(input.SourceFile))
         {
-            cancellationToken.ThrowIfCancellationRequested();
 
-            if (z.Attributes.HasFlag(FileAttributes.Directory)) continue;
+            if (!string.IsNullOrWhiteSpace(input.Password)) zip.Password = input.Password;
 
-            string normalizedEntryPath = z.FileName
-                .Replace('/', Path.DirectorySeparatorChar)
-                .Replace('\\', Path.DirectorySeparatorChar);
-
-            var targetFilePath = Path.GetFullPath(Path.Combine(input.DestinationDirectory, normalizedEntryPath));
-            if (File.Exists(targetFilePath))
+            foreach (var z in zip)
             {
-                if (options.DestinationFileExistsAction == UnzipFileExistAction.Error)
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (z.Attributes.HasFlag(FileAttributes.Directory)) continue;
+
+                string normalizedEntryPath = z.FileName
+                    .Replace('/', Path.DirectorySeparatorChar)
+                    .Replace('\\', Path.DirectorySeparatorChar);
+
+                var targetFilePath = Path.GetFullPath(Path.Combine(input.DestinationDirectory, normalizedEntryPath));
+
+                if (File.Exists(targetFilePath))
                 {
-                    throw new IOException($"Destination file already exists: {targetFilePath}");
+                    if (options.DestinationFileExistsAction == UnzipFileExistAction.Error)
+                    {
+                        throw new IOException($"Destination file already exists: {targetFilePath}");
+                    }
+
+                    if (options.DestinationFileExistsAction == UnzipFileExistAction.Rename)
+                    {
+                        targetFilePath = Extensions.GetNewFilename(
+                            Path.Combine(input.DestinationDirectory, normalizedEntryPath),
+                            cancellationToken);
+                    }
                 }
 
-                if (options.DestinationFileExistsAction == UnzipFileExistAction.Rename)
-                {
-                    targetFilePath = Extensions.GetNewFilename(
-                        Path.Combine(input.DestinationDirectory, normalizedEntryPath),
-                        cancellationToken);
-                }
+                string directory = Path.GetDirectoryName(targetFilePath);
+                if (directory != null) Directory.CreateDirectory(directory);
+
+                using var fs = File.Create(targetFilePath);
+                z.Extract(fs);
+                output.ExtractedFiles.Add(targetFilePath);
             }
-
-            string directory = Path.GetDirectoryName(targetFilePath);
-            if (directory != null) Directory.CreateDirectory(directory);
-
-            using var fs = File.Create(targetFilePath);
-            z.Extract(fs);
-            output.ExtractedFiles.Add(targetFilePath);
         }
 
 
