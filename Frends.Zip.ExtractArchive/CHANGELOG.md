@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.4.0] - 2026-05-25
+
+### Fixed
+
+- Fix separators when extracting between different operating systems (e.g. Windows and Linux) to ensure correct file paths.
+
 ## [1.3.0] - 2025-12-29
 
 ### Fixed

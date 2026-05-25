@@ -13,18 +13,19 @@ public class UnZipTests
 {
     private readonly string[] fileNames =
     {
-        "logo1.png",
-        "logo2.png",
-        Path.Combine("folder", "logo1.png"),
-        Path.Combine("folder", "logo2.png"),
+        "logo1.png", "logo2.png", Path.Combine("folder", "logo1.png"), Path.Combine("folder", "logo2.png"),
         Path.Combine("folder", "folder", "folder", "logo1.png"),
         Path.Combine("folder", "folder", "folder", "logo2.png"),
         Path.Combine("folder", "folder", "folder", "folder", "logo1.png"),
     };
 
     // Paths to TestIn and TestOut.
-    private readonly string inputPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../..", "TestData", "TestIn");
-    private readonly string outputPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../..", "TestData", "TestOut" + Path.DirectorySeparatorChar);
+    private readonly string inputPath =
+        Path.Combine(TestContext.CurrentContext.TestDirectory, "../../..", "TestData", "TestIn");
+
+    private readonly string outputPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../..", "TestData",
+        "TestOut" + Path.DirectorySeparatorChar);
+
     List<string> outputFiles;
     UnzipInputProperties sp;
     UnzipOptions opt;
@@ -129,7 +130,7 @@ public class UnZipTests
         // Unzip files to TestOut, so that there are existing files.
         Zip.ExtractArchive(sp, opt2, new CancellationToken());
 
-        Assert.Throws<ZipException>(() => Zip.ExtractArchive(sp, opt, new CancellationToken()));
+        Assert.Throws<IOException>(() => Zip.ExtractArchive(sp, opt, new CancellationToken()));
     }
 
     [Test]
@@ -148,13 +149,15 @@ public class UnZipTests
         var output = Zip.ExtractArchive(sp, opt, new CancellationToken());
 
         // Read first line from each file.
-        var lines = Directory.EnumerateFiles(sp.DestinationDirectory, "*", SearchOption.AllDirectories).Select(x => File.ReadLines(x).First()).ToList();
+        var lines = Directory.EnumerateFiles(sp.DestinationDirectory, "*", SearchOption.AllDirectories)
+            .Select(x => File.ReadLines(x).First()).ToList();
 
         Assert.True(lines.Contains("First file") && lines.Contains("Second file") && lines.Contains("Third file"));
 
         sp.SourceFile = Path.Combine(inputPath, "testzip2.zip");
         output = Zip.ExtractArchive(sp, opt, new CancellationToken());
-        var lines2 = Directory.EnumerateFiles(sp.DestinationDirectory, "*", SearchOption.AllDirectories).Select(x => File.ReadLines(x).First()).ToList();
+        var lines2 = Directory.EnumerateFiles(sp.DestinationDirectory, "*", SearchOption.AllDirectories)
+            .Select(x => File.ReadLines(x).First()).ToList();
         Assert.False(lines2.Contains("First file") && lines2.Contains("Second file") && lines2.Contains("Third file"));
         Assert.True(lines2.Contains("Fourth file") && lines2.Contains("Fifth file") && lines2.Contains("Sixth file"));
     }
