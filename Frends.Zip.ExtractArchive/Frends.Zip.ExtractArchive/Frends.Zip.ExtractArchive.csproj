@@ -10,7 +10,7 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <IncludeSource>true</IncludeSource>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <Version>1.3.0</Version>
+        <Version>1.4.0</Version>
         <Description>Task for extracting ZIP archives.</Description>
         <PackageProjectUrl>https://frends.com/</PackageProjectUrl>
         <RepositoryUrl>https://github.com/FrendsPlatform/Frends.ZIP/tree/main/Frends.Zip.ExtractArchive</RepositoryUrl>
