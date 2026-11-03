@@ -4,7 +4,7 @@
 
 ### Changed
 
-- **[Breaking Change]** Task now targets .NET 8.
+- Task now targets .NET 8.
 - **[Breaking Change]** Task now returns a `Result` object with `Success`, `ExtractedFiles` and `Error` properties.
 - **[Breaking Change]** Renamed the `Unzip Input Properties` and `Unzip Options` parameters to `Input` and `Options`.
 
