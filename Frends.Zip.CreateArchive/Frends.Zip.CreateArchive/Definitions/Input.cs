@@ -70,7 +70,6 @@ public class Input
     /// </summary>
     /// <example>c:\temp</example>
     [DisplayFormat(DataFormatString = "Text")]
-    [Required]
     public string DestinationDirectory { get; set; }
 
     /// <summary>
@@ -78,7 +77,6 @@ public class Input
     /// </summary>
     /// <example>sample.zip</example>
     [DisplayFormat(DataFormatString = "Text")]
-    [Required]
     public string DestinationFileName { get; set; }
 
     /// <summary>

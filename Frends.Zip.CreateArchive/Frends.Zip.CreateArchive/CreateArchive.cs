@@ -26,8 +26,6 @@ public static class Zip
     {
         try
         {
-            ValidationHandler.Run(input, options);
-
             // Validate that source and destination folders exist.
             if (!Directory.Exists(input.SourceDirectory) && input.SourceType == SourceFilesType.PathAndFileMask)
                 throw new DirectoryNotFoundException($"Source directory {input.SourceDirectory} does not exist.");
