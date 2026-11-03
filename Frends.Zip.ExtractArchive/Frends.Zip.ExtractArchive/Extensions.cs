@@ -1,11 +1,9 @@
-﻿using System.IO;
-using System.Threading;
 namespace Frends.Zip.ExtractArchive;
 
 /// <summary>
 /// Extensions class.
 /// </summary>
-static class Extensions
+internal static class Extensions
 {
     internal static string GetNewFilename(string path, CancellationToken cancellationToken)
     {
@@ -14,10 +12,11 @@ static class Extensions
         do
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var new_Filename = $"{Path.GetFileNameWithoutExtension(path)}({index}){Path.GetExtension(path)}";
-            newPath = Path.Combine(Path.GetDirectoryName(path), new_Filename);
+            var newFilename = $"{Path.GetFileNameWithoutExtension(path)}({index}){Path.GetExtension(path)}";
+            newPath = Path.Combine(Path.GetDirectoryName(path), newFilename);
             index++;
-        } while (File.Exists(newPath));
+        }
+        while (File.Exists(newPath));
         return newPath;
     }
 }
