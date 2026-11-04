@@ -1,19 +1,32 @@
-﻿namespace Frends.Zip.CreateArchive.Definitions;
+namespace Frends.Zip.CreateArchive.Definitions;
 
 /// <summary>
 /// Enumeration of encoding options.
 /// </summary>
 public enum FileEncoding
 {
-    // Pragma for self-explanatory enum attributes.
-#pragma warning disable 1591
+    /// <summary>
+    /// UTF-8 encoding.
+    /// </summary>
     UTF8,
+
+    /// <summary>
+    /// ANSI encoding.
+    /// </summary>
     ANSI,
+
+    /// <summary>
+    /// ASCII encoding.
+    /// </summary>
     ASCII,
+
+    /// <summary>
+    /// Windows-1252 encoding.
+    /// </summary>
     WINDOWS1252,
+
     /// <summary>
     /// Other enables users to add other encoding options as string.
     /// </summary>
-    Other
+    Other,
 }
-
