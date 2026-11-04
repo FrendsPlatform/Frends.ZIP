@@ -29,7 +29,16 @@ public static class Zip
                 throw new FileNotFoundException($"Source file {input.SourceFile} does not exist.");
             if (!Directory.Exists(input.DestinationDirectory) && !options.CreateDestinationDirectory)
                 throw new DirectoryNotFoundException($"Destination directory {input.DestinationDirectory} does not exist.");
-            if (options.CreateDestinationDirectory) Directory.CreateDirectory(input.DestinationDirectory);
+
+            var destinationRoot = Path.GetFullPath(input.DestinationDirectory);
+            var destinationRootWithSeparator = Path.EndsInDirectorySeparator(destinationRoot)
+                ? destinationRoot
+                : destinationRoot + Path.DirectorySeparatorChar;
+            var pathComparison = OperatingSystem.IsWindows()
+                ? StringComparison.OrdinalIgnoreCase
+                : StringComparison.Ordinal;
+
+            if (options.CreateDestinationDirectory) Directory.CreateDirectory(destinationRoot);
 
             var extractedFiles = new List<string>();
 
@@ -47,7 +56,17 @@ public static class Zip
                         .Replace('/', Path.DirectorySeparatorChar)
                         .Replace('\\', Path.DirectorySeparatorChar);
 
-                    var targetFilePath = Path.GetFullPath(Path.Combine(input.DestinationDirectory, normalizedEntryPath));
+                    if (Path.IsPathRooted(normalizedEntryPath)
+                        || (normalizedEntryPath.Length >= 2
+                            && char.IsLetter(normalizedEntryPath[0])
+                            && normalizedEntryPath[1] == ':'))
+                    {
+                        throw new IOException($"Archive entry path is rooted: {z.FileName}");
+                    }
+
+                    var targetFilePath = Path.GetFullPath(Path.Combine(destinationRoot, normalizedEntryPath));
+                    if (!targetFilePath.StartsWith(destinationRootWithSeparator, pathComparison))
+                        throw new IOException($"Archive entry escapes the destination directory: {z.FileName}");
 
                     if (File.Exists(targetFilePath))
                     {
@@ -59,7 +78,7 @@ public static class Zip
                         if (options.DestinationFileExistsAction == UnzipFileExistAction.Rename)
                         {
                             targetFilePath = Extensions.GetNewFilename(
-                                Path.Combine(input.DestinationDirectory, normalizedEntryPath),
+                                targetFilePath,
                                 cancellationToken);
                         }
                     }

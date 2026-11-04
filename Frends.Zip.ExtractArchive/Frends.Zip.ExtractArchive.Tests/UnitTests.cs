@@ -186,6 +186,36 @@ public class UnitTests
         Assert.AreEqual(output.ExtractedFiles.Count, 7);
     }
 
+    [TestCase("../traversal_forward_marker.txt", "traversal_forward_marker.txt")]
+    [TestCase(@"..\traversal_backslash_marker.txt", "traversal_backslash_marker.txt")]
+    public void RejectsTraversalEntry(string entryName, string escapedFileName)
+    {
+        var destinationDirectory = Path.Combine(outputPath, "traversal_destination");
+        var escapedFilePath = Path.Combine(outputPath, escapedFileName);
+        sp.SourceFile = CreateArchiveWithEntry(entryName, "traversal.zip");
+        sp.DestinationDirectory = destinationDirectory;
+        opt.CreateDestinationDirectory = true;
+        opt.DestinationFileExistsAction = UnzipFileExistAction.Overwrite;
+
+        Assert.Throws<IOException>(() => Zip.ExtractArchive(sp, opt, CancellationToken.None));
+        Assert.That(File.Exists(escapedFilePath), Is.False);
+    }
+
+    [Test]
+    public void RejectsRootedEntry()
+    {
+        var destinationDirectory = Path.Combine(outputPath, "rooted_destination");
+        var escapedFilePath = Path.Combine(outputPath, $"rooted_marker_{Guid.NewGuid():N}.txt");
+        var entryName = escapedFilePath.Replace(Path.DirectorySeparatorChar, '/');
+        sp.SourceFile = CreateArchiveWithEntry(entryName, "rooted.zip");
+        sp.DestinationDirectory = destinationDirectory;
+        opt.CreateDestinationDirectory = true;
+        opt.DestinationFileExistsAction = UnzipFileExistAction.Overwrite;
+
+        Assert.Throws<IOException>(() => Zip.ExtractArchive(sp, opt, CancellationToken.None));
+        Assert.That(File.Exists(escapedFilePath), Is.False);
+    }
+
     [Test]
     public void DeleteSourceFile()
     {
@@ -201,5 +231,17 @@ public class UnitTests
         Zip.ExtractArchive(sp, opt, CancellationToken.None);
 
         Assert.IsFalse(File.Exists(sp.SourceFile));
+    }
+
+    private string CreateArchiveWithEntry(string entryName, string archiveName)
+    {
+        var archivePath = Path.Combine(outputPath, archiveName);
+        using var archiveStream = File.Create(archivePath);
+        using var zip = new System.IO.Compression.ZipArchive(
+            archiveStream,
+            System.IO.Compression.ZipArchiveMode.Create);
+        using var writer = new StreamWriter(zip.CreateEntry(entryName).Open());
+        writer.Write("harmless test content");
+        return archivePath;
     }
 }
