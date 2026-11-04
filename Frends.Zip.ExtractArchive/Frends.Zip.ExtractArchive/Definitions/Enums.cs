@@ -1,13 +1,22 @@
-﻿namespace Frends.Zip.ExtractArchive.Definitions;
+namespace Frends.Zip.ExtractArchive.Definitions;
 
 /// <summary>
 /// Unzip file exist actions.
 /// </summary>
 public enum UnzipFileExistAction
 {
-#pragma warning disable CS1591 // self explanatory.
+    /// <summary>
+    /// Throw an error if the destination file already exists.
+    /// </summary>
     Error,
+
+    /// <summary>
+    /// Overwrite the existing destination file.
+    /// </summary>
     Overwrite,
-    Rename
-#pragma warning restore CS1591 // self explanatory.
-};
+
+    /// <summary>
+    /// Extract the file with a new name, leaving the existing file untouched.
+    /// </summary>
+    Rename,
+}

@@ -1,15 +1,11 @@
-﻿using Frends.Zip.ExtractArchive.Definitions;
+using Frends.Zip.ExtractArchive.Definitions;
 using Ionic.Zip;
 using NUnit.Framework;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
 
 namespace Frends.Zip.ExtractArchive.Tests;
 
 [TestFixture]
-public class UnZipTests
+public class UnitTests
 {
     private readonly string[] fileNames =
     {
@@ -23,18 +19,21 @@ public class UnZipTests
     private readonly string inputPath =
         Path.Combine(TestContext.CurrentContext.TestDirectory, "../../..", "TestData", "TestIn");
 
-    private readonly string outputPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "../../..", "TestData",
+    private readonly string outputPath = Path.Combine(
+        TestContext.CurrentContext.TestDirectory,
+        "../../..",
+        "TestData",
         "TestOut" + Path.DirectorySeparatorChar);
 
-    List<string> outputFiles;
-    UnzipInputProperties sp;
-    UnzipOptions opt;
+    private List<string> outputFiles;
+    private Input sp;
+    private Options opt;
 
     [SetUp]
     public void Setup()
     {
-        sp = new UnzipInputProperties();
-        opt = new UnzipOptions();
+        sp = new Input();
+        opt = new Options();
         Directory.CreateDirectory(outputPath);
     }
 
@@ -116,10 +115,10 @@ public class UnZipTests
     {
         sp.SourceFile = Path.Combine(inputPath, "HiQLogos.zip");
 
-        var opt2 = new UnzipOptions
+        var opt2 = new Options
         {
             DestinationFileExistsAction = UnzipFileExistAction.Overwrite,
-            CreateDestinationDirectory = true
+            CreateDestinationDirectory = true,
         };
 
         opt.DestinationFileExistsAction = UnzipFileExistAction.Error;
@@ -137,10 +136,10 @@ public class UnZipTests
     public void OverwriteFiles()
     {
         sp.SourceFile = Path.Combine(inputPath, "testZip.zip");
-        opt = new UnzipOptions
+        opt = new Options
         {
             DestinationFileExistsAction = UnzipFileExistAction.Overwrite,
-            CreateDestinationDirectory = true
+            CreateDestinationDirectory = true,
         };
 
         sp.DestinationDirectory = Path.Combine(sp.DestinationDirectory = Path.Combine(outputPath, "new_directory"));

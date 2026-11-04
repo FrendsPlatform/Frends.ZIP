@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Frends.Zip.ExtractArchive.Definitions;
@@ -6,7 +6,7 @@ namespace Frends.Zip.ExtractArchive.Definitions;
 /// <summary>
 /// Source properties.
 /// </summary>
-public class UnzipInputProperties
+public class Input
 {
     /// <summary>
     /// Full path to the source file.

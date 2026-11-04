@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.0.0] - 2026-11-03
+
+### Changed
+
+- Task now targets .NET 8.
+- **[Breaking Change]** Task now returns a `Result` object with `Success`, `ExtractedFiles` and `Error` properties.
+- **[Breaking Change]** Renamed the `Unzip Input Properties` and `Unzip Options` parameters to `Input` and `Options`.
+
+### Added
+
+- Added `ThrowErrorOnFailure` and `ErrorMessageOnFailure` options to control error handling. By default errors are still thrown.
+
 ## [1.4.0] - 2026-05-25
 
 ### Fixed

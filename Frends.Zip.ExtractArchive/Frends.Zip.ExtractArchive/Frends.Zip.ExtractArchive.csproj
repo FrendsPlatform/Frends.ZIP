@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <authors>Frends</authors>
         <copyright>Frends</copyright>
         <Company>Frends</Company>
@@ -9,20 +9,39 @@
         <PackageTags>frends zip archive</PackageTags>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <IncludeSource>true</IncludeSource>
+        <LangVersion>latest</LangVersion>
+        <Nullable>disable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <NoWarn>
+            CS1591, <!-- StyleCop SA1602 already enforces documentation for enum members -->
+        </NoWarn>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <Version>1.4.0</Version>
+        <Version>2.0.0</Version>
         <Description>Task for extracting ZIP archives.</Description>
         <PackageProjectUrl>https://frends.com/</PackageProjectUrl>
         <RepositoryUrl>https://github.com/FrendsPlatform/Frends.ZIP/tree/main/Frends.Zip.ExtractArchive</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="FrendsTaskMetadata.json" Pack="true" PackagePath="/">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
+        <InternalsVisibleTo Include="Frends.Zip.ExtractArchive.Tests" />
     </ItemGroup>
 
     <ItemGroup>
+        <None Include="FrendsTaskMetadata.json" Pack="true" PackagePath="/">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <AdditionalFiles Include="FrendsTaskMetadata.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="FrendsTaskAnalyzers" Version="1.*">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="ProDotNetZip" Version="1.20.0"/>
         <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0"/>
     </ItemGroup>
