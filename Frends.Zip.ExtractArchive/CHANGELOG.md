@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.1.0] - 2026-11-04
+
+### Fixed
+
+- Reject ZIP entries with rooted paths or paths that escape the destination directory.
+
 ## [2.0.0] - 2026-11-03
 
 ### Changed

@@ -77,8 +77,8 @@ public class UnitTests
         fileNames.ToList().ForEach(x => outputFiles.Add(Path.Combine(sp.DestinationDirectory, x)));
         var output = Zip.ExtractArchive(sp, opt, CancellationToken.None);
 
-        foreach (var s in outputFiles) Assert.True(File.Exists(s));
-        Assert.AreEqual(output.ExtractedFiles.Count, 7);
+        foreach (var s in outputFiles) Assert.That(File.Exists(s), Is.True);
+        Assert.That(output.ExtractedFiles.Count, Is.EqualTo(7));
     }
 
     [Test]
@@ -94,8 +94,8 @@ public class UnitTests
         sp.DestinationDirectory = Path.Combine(outputPath, "new_directory");
 
         Zip.ExtractArchive(sp, opt, CancellationToken.None);
-        Assert.True(File.Exists(Path.Combine(outputPath, "new_directory", "logo1.png")));
-        Assert.True(File.Exists(Path.Combine(outputPath, "new_directory", "logo2.png")));
+        Assert.That(File.Exists(Path.Combine(outputPath, "new_directory", "logo1.png")), Is.True);
+        Assert.That(File.Exists(Path.Combine(outputPath, "new_directory", "logo2.png")), Is.True);
     }
 
     [Test]
@@ -151,14 +151,14 @@ public class UnitTests
         var lines = Directory.EnumerateFiles(sp.DestinationDirectory, "*", SearchOption.AllDirectories)
             .Select(x => File.ReadLines(x).First()).ToList();
 
-        Assert.True(lines.Contains("First file") && lines.Contains("Second file") && lines.Contains("Third file"));
+        Assert.That(lines.Contains("First file") && lines.Contains("Second file") && lines.Contains("Third file"), Is.True);
 
         sp.SourceFile = Path.Combine(inputPath, "testZip2.zip");
         Zip.ExtractArchive(sp, opt, CancellationToken.None);
         var lines2 = Directory.EnumerateFiles(sp.DestinationDirectory, "*", SearchOption.AllDirectories)
             .Select(x => File.ReadLines(x).First()).ToList();
-        Assert.False(lines2.Contains("First file") && lines2.Contains("Second file") && lines2.Contains("Third file"));
-        Assert.True(lines2.Contains("Fourth file") && lines2.Contains("Fifth file") && lines2.Contains("Sixth file"));
+        Assert.That(lines2.Contains("First file") && lines2.Contains("Second file") && lines2.Contains("Third file"), Is.False);
+        Assert.That(lines2.Contains("Fourth file") && lines2.Contains("Fifth file") && lines2.Contains("Sixth file"), Is.True);
     }
 
     [Test]
@@ -181,9 +181,39 @@ public class UnitTests
         output.ExtractedFiles.ForEach(x => outputFiles.Add(x));
 
         foreach (var s in outputFiles)
-            Assert.True(File.Exists(s));
+            Assert.That(File.Exists(s), Is.True);
 
-        Assert.AreEqual(output.ExtractedFiles.Count, 7);
+        Assert.That(output.ExtractedFiles.Count, Is.EqualTo(7));
+    }
+
+    [TestCase("../traversal_forward_marker.txt", "traversal_forward_marker.txt")]
+    [TestCase(@"..\traversal_backslash_marker.txt", "traversal_backslash_marker.txt")]
+    public void RejectsTraversalEntry(string entryName, string escapedFileName)
+    {
+        var destinationDirectory = Path.Combine(outputPath, "traversal_destination");
+        var escapedFilePath = Path.Combine(outputPath, escapedFileName);
+        sp.SourceFile = CreateArchiveWithEntry(entryName, "traversal.zip");
+        sp.DestinationDirectory = destinationDirectory;
+        opt.CreateDestinationDirectory = true;
+        opt.DestinationFileExistsAction = UnzipFileExistAction.Overwrite;
+
+        Assert.Throws<IOException>(() => Zip.ExtractArchive(sp, opt, CancellationToken.None));
+        Assert.That(File.Exists(escapedFilePath), Is.False);
+    }
+
+    [Test]
+    public void RejectsRootedEntry()
+    {
+        var destinationDirectory = Path.Combine(outputPath, "rooted_destination");
+        var escapedFilePath = Path.Combine(outputPath, $"rooted_marker_{Guid.NewGuid():N}.txt");
+        var entryName = escapedFilePath.Replace(Path.DirectorySeparatorChar, '/');
+        sp.SourceFile = CreateArchiveWithEntry(entryName, "rooted.zip");
+        sp.DestinationDirectory = destinationDirectory;
+        opt.CreateDestinationDirectory = true;
+        opt.DestinationFileExistsAction = UnzipFileExistAction.Overwrite;
+
+        Assert.Throws<IOException>(() => Zip.ExtractArchive(sp, opt, CancellationToken.None));
+        Assert.That(File.Exists(escapedFilePath), Is.False);
     }
 
     [Test]
@@ -200,6 +230,18 @@ public class UnitTests
 
         Zip.ExtractArchive(sp, opt, CancellationToken.None);
 
-        Assert.IsFalse(File.Exists(sp.SourceFile));
+        Assert.That(File.Exists(sp.SourceFile), Is.False);
+    }
+
+    private string CreateArchiveWithEntry(string entryName, string archiveName)
+    {
+        var archivePath = Path.Combine(outputPath, archiveName);
+        using var archiveStream = File.Create(archivePath);
+        using var zip = new System.IO.Compression.ZipArchive(
+            archiveStream,
+            System.IO.Compression.ZipArchiveMode.Create);
+        using var writer = new StreamWriter(zip.CreateEntry(entryName).Open());
+        writer.Write("harmless test content");
+        return archivePath;
     }
 }
